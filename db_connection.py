@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def execute_query(query, has_results = False):
+def execute_query(query, has_results = False, batch_insert = False, records = []):
     try:
         connection = psycopg2.connect(
             user=os.getenv("USERNAME"),
@@ -16,24 +16,26 @@ def execute_query(query, has_results = False):
             )
 
         cursor = connection.cursor()
-        cursor.execute(query)
 
-        if has_results:          
-            ans =cursor.fetchall()
-            dict_result = []
-            for row in ans:
-                dict_result.append(dict(row))
+        if batch_insert:
+            cursor.execute(query, records)
+            print(cursor.rowcount, " records inserted successfully")
+        else:
+            cursor.execute(query)
+            print("Executed successfully")
 
-        print("Executed successfully")
+        if has_results:
+            ans = cursor.fetchall()
+
+            return ans
+
+
+        connection.commit()
 
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)
     finally:
         if (connection):
-            connection.commit()
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-        
-        if has_results:
-            return dict_result
