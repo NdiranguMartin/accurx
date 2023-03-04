@@ -19,10 +19,8 @@ def execute_query(query, has_results = False, batch_insert = False, records = []
 
         if batch_insert:
             cursor.execute(query, records)
-            print(cursor.rowcount, " records inserted successfully")
         else:
             cursor.execute(query)
-            print("Executed successfully")
 
         if has_results:
             ans = cursor.fetchall()
@@ -38,4 +36,3 @@ def execute_query(query, has_results = False, batch_insert = False, records = []
         if (connection):
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
