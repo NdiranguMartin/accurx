@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: salesforce
+    database: dev
+    schema: salesforce
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    tables:
+      - name: opportunities

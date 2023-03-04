@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: src_opportunities
+    description: >
+      A staging table for the source. This table converts data type and does tests on the data as received from the source before using it downstream.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - opportunity_id
+            - last_updated_date
+      - dbt_utils.expression_is_true:
+          expression: "last_updated_date = file_dt"
+    columns:
+      - name: opportunity_id
+        description: Unique ID for ecah opportunity
+        tests:
+          - not_null
+
+      - name: opportunity_name
+        description: opportunity name
+        tests:
+          - not_null
+
+      - name: last_updated_date
+        description: The last time an opportunity was updated
+        tests:
+          - not_null
+
+      - name: company_size
+        description: company size
+
+      - name: industry
+        description: industry
+        tests:
+          - not_null
+
+      - name: account_id
+        description: account identifier for the opportunity
+        tests:
+          - not_null
+
+      - name: account_owner
+        description: account
+
+      - name: locale
+        description: Locale
+        tests:
+          - not_null
+
+      - name: access_tier
+        description: access tier
+
+      - name: payment_frequency
+        description: Payment frequency
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Monthly', 'Quarterly', 'Annually']
+
+      - name: payment_status
+        description: payment status. Null or cancelled
+        tests:
+          - accepted_values:
+              values: ['Cancelled', NULL]
+
+      - name: product1
+        description: product 1
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Outbound patient message']
+
+      - name: value1
+        description: value for product 1
+        tests:
+          - not_null
+
+      - name: state1
+        description: state for product 1
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Close Won', 'Lost', NULL]
+
+      - name: product2
+        description: product 2
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Inbound patient message']
+
+      - name: value2
+        description: value for product 2
+        tests:
+          - not_null
+
+      - name: state2
+        description: state for product 2
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Close Won', 'Lost', NULL]
+
+      - name: file_dt
+        description: The date on the folder where the record was stored in the data folder
+        tests:
+          - not_null
