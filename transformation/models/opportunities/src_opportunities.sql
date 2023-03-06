@@ -1,7 +1,3 @@
-
-
-
-
 SELECT
     opportunity_id::INT,
     opportunity_name,
@@ -16,9 +12,9 @@ SELECT
     payment_status,
     product1,
     value1,
-    state1,
+    CASE WHEN state1 = '' THEN NULL else state1 END AS state1,
     product2,
     value2,
-    state2,
+    CASE WHEN state2 = '' THEN NULL else state2 END AS state2,
     file_dt::DATE
 FROM {{source('salesforce', 'opportunities')}}
