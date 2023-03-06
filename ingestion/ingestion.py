@@ -4,6 +4,7 @@ from db_connection import execute_query
 from progressbar import progressbar
 import time
 
+# creating a table to store the history of runs made 
 create_run_history_table = """
     CREATE TABLE IF NOT EXISTS accurx.run_history
     (
@@ -17,6 +18,7 @@ create_run_history_table = """
 execute_query(query=create_run_history_table)
 
 def camel_to_snake(string):
+    # This function converts camel case to snake case
     return ''.join(['_' + i.lower() if i.isupper()
                     else i for i in string]).lstrip('_')
 
@@ -24,7 +26,9 @@ def camel_to_snake(string):
 # ---- create table ------
 
 
-run_start_ts = int(time.time()) 
+run_start_ts = int(time.time())
+
+# create a table to store data from the json objects 
 create_opportunities_table = """
     CREATE TABLE IF NOT EXISTS salesforce.opportunities
     (
@@ -60,6 +64,8 @@ create_opportunities_table = """
 """
 
 execute_query(query=create_opportunities_table)
+
+# Get existing records and store them in a set 
 existing_dts = execute_query(
     query="SELECT file_dt, opportunity_id FROM salesforce.opportunities",
     has_results=True,
@@ -69,6 +75,7 @@ existing_records_count = len(existing_dts)
 existing_dts = ['_'.join(row) for row in existing_dts]
 existing_records = set(existing_dts)
 
+# looping over the contents of the data folder to read the json files
 main_path = 'ingestion/data/'
 daily_paths = [day for day in os.listdir(main_path) if not day.startswith('.')]
 daily_paths.sort()
@@ -88,6 +95,7 @@ for day in progressbar(daily_paths):
                 record_id = day + '_' + record['opportunityId']
 
                 if record_id not in existing_records:
+                    # process a row only if it is not in the DB 
                     col_names = list(record.keys()) + ['file_dt']
                     col_names = tuple([camel_to_snake(col) for col in col_names])
                     col_names = ', '.join(col_names)
