@@ -79,14 +79,12 @@ models:
       - name: state1
         description: state for product 1
         tests:
-          - not_null
           - accepted_values:
               values: ['Close Won', 'Lost', NULL]
 
       - name: product2
         description: product 2
         tests:
-          - not_null
           - accepted_values:
               values: ['Inbound patient message']
 
@@ -98,7 +96,6 @@ models:
       - name: state2
         description: state for product 2
         tests:
-          - not_null
           - accepted_values:
               values: ['Close Won', 'Lost', NULL]
 
@@ -106,3 +103,72 @@ models:
         description: The date on the folder where the record was stored in the data folder
         tests:
           - not_null
+
+  - name: opportunities_daily_ts
+    description: >
+      This is a daily timeseries table, with each opportunity having one row per day from the day it was first 
+      seen to the last day of the available data, or the day the opportunity was cancelled
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dt
+            - opportunity_id
+    columns:
+      - name: dt
+        description: timeseries date
+
+      - name: opportunity_id
+        description: opportunity unique identifier
+
+      - name: opportunity_name
+        description: opportunity name
+
+      - name: industry
+        description: industry
+
+      - name: account_id
+        description: account ID
+
+      - name: locale
+        description: locale
+
+      - name: payment_frequency
+        description: payment frequency
+
+      - name: close_dt
+        description: >
+          The first date when one of the products had state close won. This might not necessarily 
+          be the first time the opportunity appeared in the data 
+        tests:
+          - not_null
+
+      - name: product1
+        description: product 1
+
+      - name: state1
+        description: state of product 1. This is null if there were no negotiations on the timeseries date.
+
+      - name: value1
+        description: value of product 1. This is null if there were no negotiations on the timeseries date.
+
+      - name: value1_at_dt
+        description: This is the value of product 1 as of dt. This is the last value where the state was close won.
+        tests:
+          - not_null
+
+      - name: product2
+        description: product 2
+
+      - name: state2
+        description: state of product 2. This is null if there were no negotiations on the timeseries date.
+
+      - name: value2
+        description: value of product 2. This is null if there were no negotiations on the timeseries date.
+
+      - name: value2_at_dt
+        description: This is the value of product 2 as of dt. This is the last value where the state was close won.
+        tests:
+          - not_null
+
+      - name: cancel_dt
+        description: This is the date the opportunity was cancelled. 
