@@ -1,7 +1,9 @@
 -- This is a timeseries for all the opportunities. It starts from the first time an opportunity was created to 
 -- the last day of the data, or to the day payment was cancelled. 
+-- For tests and documentation see opportunities.yml
 
 WITH ts AS (
+    -- get the first and the last day of the data and create a series
     SELECT GENERATE_SERIES(
         (SELECT MIN(last_updated_date) FROM {{ref('src_opportunities')}}), 
         (SELECT MAX(last_updated_date) FROM {{ref('src_opportunities')}}), 
@@ -9,6 +11,7 @@ WITH ts AS (
         ) AS dt
 )
 ,base AS (
+    -- get a row for every opportunity with the columns that do not change 
     SELECT 
         opportunity_id,
         opportunity_name,
@@ -27,6 +30,9 @@ WITH ts AS (
         1,2,3,4,5,6,7,8
 )
 ,daily_value AS (
+    -- cross join the series and each opportunity, then left join the opportunities on the days with updates
+    -- alse, create a partition group which uniquely identifies each day that had an update and all the days 
+    -- without updates between that day and the next day with an update 
     SELECT 
         ts.dt::DATE,
         base.opportunity_id,
@@ -69,6 +75,7 @@ WITH ts AS (
         AND (ts.dt <= COALESCE(base.cancel_dt, current_date))
 )
 SELECT
+-- Default to the last known value based on the groups created above
     dt,
     opportunity_id,
     opportunity_name,

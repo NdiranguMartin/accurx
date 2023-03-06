@@ -1,3 +1,5 @@
+-- This model changes the data types and tests the assumptions of the data.
+-- For tests and documentation see opportunities.yml
 SELECT
     opportunity_id::INT,
     opportunity_name,
